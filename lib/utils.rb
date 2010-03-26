@@ -1,3 +1,9 @@
+class Object
+  def blank?
+    self.nil? || (self.respond_to?(:empty?) && self.empty?)
+  end
+end
+
 class Array
   def sum array; a = self.dup; a.sum! array; a end
   def sum! array; 0.upto(size - 1) { |i| self[i] += array[i] }; self end
@@ -24,8 +30,8 @@ end
 
 module Interpretable
   def permit_interpretables m
-    unless @command_modules.include? m
-      (@command_modules ||= []) << m
+    unless (@command_modules ||= []).include? m
+      @command_modules << m
       
       self.class.instance_eval { include m }
     end
@@ -33,11 +39,15 @@ module Interpretable
   
   def interpret data
     data.strip.split(".").each do |raw_command|
-      command = raw_command.strip.split
-      method, args = command.first, command[1..-1]
+      if raw_command[0].chr == "`"
+        instance_eval raw_command[1..-2]
+      else
+        command = raw_command.strip.split
+        method, args = command.first, command[1..-1]
 
-      self.send(method, *args) if @command_modules.find do |m|
-        m.public_method_defined? method
+        self.send(method, *args) if @command_modules.find do |m|
+          m.public_method_defined? method
+        end
       end
     end
     nil
