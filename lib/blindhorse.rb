@@ -12,8 +12,6 @@ module Blindhorse
       position = player("admin").position
       room = room(*position)
       
-      require 'pp'; pp room
-      
       room_name = (room && room.name.blank? ? '' : "#{room.name} ")
       room_description = (room && room.description.blank? ? '' :
         ": #{room.description} ")

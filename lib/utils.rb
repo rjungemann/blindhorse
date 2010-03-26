@@ -1,6 +1,24 @@
+require 'uuid'
+
 class Object
   def blank?
     self.nil? || (self.respond_to?(:empty?) && self.empty?)
+  end
+end
+
+class Generate
+  @@uuid = UUID.new
+  
+  def self.salt
+    [Array.new(6) { rand(256).chr }.join].pack('m').chomp
+  end
+  
+  def self.hash password, salt
+    Digest::SHA256.hexdigest password + salt
+  end
+  
+  def self.uuid
+    @@uuid.generate
   end
 end
 
@@ -37,9 +55,9 @@ module Interpretable
     end
   end
   
-  def interpret data
+  def interpret data, can_eval = true
     data.strip.split(".").each do |raw_command|
-      if raw_command[0].chr == "`"
+      if can_eval && raw_command[0].chr == "`"
         instance_eval raw_command[1..-2]
       else
         command = raw_command.strip.split

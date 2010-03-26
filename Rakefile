@@ -16,7 +16,7 @@ task :install do
   
   sh "brew install redis ruby dtach git"
   sh "gem update --system"
-  sh "gem install eventmachine sinatra redis redis-namespace json --no-ri --no-rdoc"
+  sh "gem install eventmachine sinatra redis redis-namespace json uuid --no-ri --no-rdoc"
 
   sh "mkdir #{script_dir}/vendor" unless File.exists? "#{script_dir}/vendor"
 end

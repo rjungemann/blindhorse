@@ -7,6 +7,43 @@ module Blindhorse
   class Model; attr_accessor :store end
   
   class Player < Model
+    module Authenticable
+      def password= pass
+        salt = Generate.salt
+
+        @store["players:#{@name}:salt"] = salt
+        @store["players:#{@name}:hash"] = Generate.hash(pass, salt) 
+        
+        true
+      end
+
+      def check_password pass
+        salt = @store["players:#{@name}:salt"]
+
+        @store["players:#{@name}:hash"] == Generate.hash(pass, salt) 
+      end
+    end
+    
+    module Signinable
+      def signin pass
+        @store["players:#{@name}:signedin"] = check_password pass
+      end
+      
+      def signed_in?
+        @store["players:#{@name}:signedin"]
+      end
+    end
+    
+    module Authorizable
+      attr_accessor :roles
+      
+      def authorized? role; (@roles ||= []).include? role end
+    end
+    
+    include Authenticable
+    include Signinable
+    include Authorizable
+    
     def initialize name; @name = name end
     def create; @store.set_add "players", @name; self end
     def destroy; @store.set_delete "players", @name; self end
