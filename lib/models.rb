@@ -37,6 +37,10 @@ module Blindhorse
       def signin pass
         @store["players:#{@name}:signedin"] = check_password pass
       end
+
+      def signout
+      	@store["players:#{@name}:signedin"] = nil
+      end
       
       def signed_in?
         @store["players:#{@name}:signedin"]
@@ -69,7 +73,7 @@ module Blindhorse
       position
     end
 
-    def exists?; @store.set_member? "player", @name end
+    def exists?; @store.set_member? "players", @name end
     def x; @store["players:#{@name}:x"] end
     def x= val; @store["players:#{@name}:x"] = val end
     def y; @store["players:#{@name}:y"] end

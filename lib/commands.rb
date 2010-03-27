@@ -21,7 +21,7 @@ module Blindhorse
       position = @player.position
       sum = position.sum(Direction.offset(direction))
       
-      @player.position! *sum if room(*player.position).exists?
+      @player.position! *sum if room(*position).exists?
       
       look
     end

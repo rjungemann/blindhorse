@@ -1,3 +1,7 @@
+require 'pathname'
+
+PREFIX = Pathname.new(File.dirname(__FILE__)).realpath
+
 desc ""
 task :default do
   puts "Make sure you have installed XCode from http://developer.apple.com, "
@@ -19,6 +23,16 @@ task :install do
   sh "gem install eventmachine sinatra redis redis-namespace json uuid --no-ri --no-rdoc"
 
   sh "mkdir #{script_dir}/vendor" unless File.exists? "#{script_dir}/vendor"
+end
+
+desc ""
+task :client do
+	exec "telnet localhost 6378"
+end
+
+desc ""
+task :server do
+	exec "ruby init.rb"
 end
 
 namespace :redis do
