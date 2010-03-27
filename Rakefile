@@ -20,3 +20,21 @@ task :install do
 
   sh "mkdir #{script_dir}/vendor" unless File.exists? "#{script_dir}/vendor"
 end
+
+namespace :redis do
+	desc ""
+	task :start do
+		sh "mkdir tmp" unless File.exists? "tmp"
+		sh "dtach -n tmp/redis.dtach redis-server"
+	end
+
+	desc ""
+	task :stop do
+		sh %{kill `lsof -i :6379 | ruby -e "STDIN.gets; puts STDIN.gets.split[1]"`}
+	end
+
+	desc ""
+	task :clean do
+		sh "rm -rf tmp" if File.exists? "tmp"
+	end
+end

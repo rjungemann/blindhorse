@@ -1,3 +1,4 @@
+require 'digest/sha2'
 require 'uuid'
 
 class Object
@@ -51,7 +52,7 @@ module Interpretable
     unless (@command_modules ||= []).include? m
       @command_modules << m
       
-      self.class.instance_eval { include m }
+      class_eval { include m }
     end
   end
   

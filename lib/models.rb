@@ -1,7 +1,16 @@
+require 'active_support'
+
 module Blindhorse
   module Modelable
-    def player *args; pl = Player.new *args; pl.store = @store; pl end
-    def room *args; r = Room.new *args; r.store = @store; r end
+    def self.model_for *table_syms
+    	table_syms.each do |table_sym|
+		  	class_eval "def #{table_sym.to_s} *args; " +
+					"m = #{table_sym.to_s.camelize}.new *args; " +
+					"m.store = @store; m end"
+			end
+    end
+
+    model_for :player, :room
   end
   
   class Model; attr_accessor :store end
@@ -59,7 +68,8 @@ module Blindhorse
       
       position
     end
-    
+
+    def exists?; @store.set_member? "player", @name end
     def x; @store["players:#{@name}:x"] end
     def x= val; @store["players:#{@name}:x"] = val end
     def y; @store["players:#{@name}:y"] end
