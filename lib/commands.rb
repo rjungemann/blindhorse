@@ -1,8 +1,9 @@
 module Blindhorse
   module Commands
     def look
-      position = @player.position
-      room = room(*position)
+      position = @player.location
+      loc = location(position.x, position.y, position.z)
+      room = room(loc.rooms.first)
       
       room_name = (room && room.name.blank? ? '' : "#{room.name} ")
       room_description = (room && room.description.blank? ? '' :
@@ -12,16 +13,28 @@ module Blindhorse
     end
 
     def go direction
-      @player.position! *@player.position.sum(Direction.offset(direction))
+			position = @player.location
+			loc = location(position.x, position.y, position.z)
+			sum = *position.sum(Direction.offset(direction))
+    	new_location = location(sum.x, sum.y, sum.z).create
+
+      loc.remove_player @player.name
+      new_location.add_player @player.name
       
       look
     end
     
     def walk direction
-      position = @player.position
-      sum = position.sum(Direction.offset(direction))
-      
-      @player.position! *sum if room(*position).exists?
+      position = @player.location
+			loc = location(position.x, position.y, position.z)
+			sum = *position.sum(Direction.offset(direction))
+    	new_location = location(sum.x, sum.y, sum.z).create
+    	room = room(new_location.rooms.first)
+
+			if room.exists?
+      	loc.remove_player @player.name
+      	new_location.add_player @player.name
+			end
       
       look
     end
@@ -31,8 +44,12 @@ module Blindhorse
   
   module RestrictedCommands
     def create_room name = nil, description = nil
-      position = @player.position
-      room = room(*position).create
+      position = @player.location
+      loc = location(position.x, position.y, position.z)
+      room = room(location.rooms.first).create
+
+			loc.add_room room.uuid
+      
       room.name, room.description = name, description
     end
   end

@@ -46,7 +46,8 @@ module Blindhorse
 					@player.create
 					@player.password = password
 					@player.signin password
-					@player.position! 0, 0, 0
+
+					location(0, 0, 0).add_player @player.name
 
 					send_data "Your account has been created!\n>> "
 				end
