@@ -22,6 +22,8 @@ task :install do
   sh "brew install redis ruby dtach git"
   sh "gem update --system"
   sh "gem install eventmachine sinatra activesupport redis json uuid --no-ri --no-rdoc"
+  
+  sh "cd vendor && git clone git://github.com/igrigorik/em-websocket.git"
 
   sh "mkdir #{script_dir}/vendor" unless File.exists? "#{script_dir}/vendor"
 end

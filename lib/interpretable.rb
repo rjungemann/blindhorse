@@ -17,10 +17,6 @@ module Interpretable
       else
         method, args = command.first, command[1..-1]
         
-        require 'pp'
-        pp method
-        pp args
-        
         self.send(method, *args) if (@command_modules ||= []).find do |m|
           m.public_method_defined? method
         end

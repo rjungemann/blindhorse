@@ -1,4 +1,3 @@
-require 'eventmachine'
 require 'active_support'
 require "#{File.dirname(__FILE__)}/../vendor/redis-rb/lib/redis"
 require 'json'

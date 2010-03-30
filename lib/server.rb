@@ -70,4 +70,13 @@ module Blindhorse
 			end
     end
   end
+  
+  class PolicySocket < EventMachine::Connection
+    def receive_data data
+      if(data.match /<policy-file-request\s*\/>/)
+        puts "PolicySocket: sending a cross-domain file."
+        send_data %{<?xml version="1.0"?><cross-domain-policy><allow-access-from domain="*" to-ports="*"/></cross-domain-policy>\0}
+      end
+    end
+  end
 end
