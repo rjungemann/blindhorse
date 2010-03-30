@@ -7,8 +7,8 @@ cd `dirname ${SCRIPT_PATH}` > /dev/null
 SCRIPT_PATH=`pwd`;
 popd > /dev/null
 
-export PATH=${SCRIPT_PATH}/bin:${SCRIPT_PATH}/sbin:$PATH
 export PATH=${SCRIPT_PATH}/homebrew/bin:${SCRIPT_PATH}/homebrew/sbin:$PATH
+export PATH=${SCRIPT_PATH}/bin:${SCRIPT_PATH}/sbin:$PATH
 
 export GEM_HOME=${SCRIPT_PATH}/homebrew/lib/ruby/gems
 

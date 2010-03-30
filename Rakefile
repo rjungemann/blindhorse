@@ -14,15 +14,20 @@ task :install do
   gem_opts = "--no-ri --no-rdoc"
   script_dir = File.dirname(__FILE__)
   
-  sh "mkdir projects tmp"
+  sh "mkdir projects" unless File.exists? "projects"
+  sh "mkdir tmp" unless File.exists? "tmp"
   sh "mkdir homebrew" unless File.exists? "homebrew"
   sh "cd homebrew && curl -L http://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1"
   
   sh "brew install redis ruby dtach git"
   sh "gem update --system"
-  sh "gem install eventmachine sinatra redis redis-namespace json uuid --no-ri --no-rdoc"
+  sh "gem install eventmachine sinatra activesupport redis json uuid --no-ri --no-rdoc"
 
   sh "mkdir #{script_dir}/vendor" unless File.exists? "#{script_dir}/vendor"
+end
+
+task :clean do
+  sh "rm -rf homebrew tmp"
 end
 
 desc ""
@@ -36,6 +41,15 @@ task :server do
 end
 
 namespace :redis do
+  desc "Install Redis into the current directory."
+  task :install do
+    sh "mkdir bin" unless File.exists? "bin"
+    sh "cd vendor && git clone http://github.com/antirez/redis.git"
+    sh "cd vendor/redis && make && cp redis-benchmark redis-cli redis-server redis-check-dump ../../bin/"
+    
+    sh "cd vendor && git clone http://github.com/ezmobius/redis-rb.git"
+  end
+  
 	desc ""
 	task :start do
 		sh "mkdir tmp" unless File.exists? "tmp"

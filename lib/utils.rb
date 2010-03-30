@@ -36,12 +36,12 @@ class Direction
   def self.offset d
     direction, offset = d.to_sym, [0, 0, 0]
     case direction
-      when :up; offset.z -= 1
-      when :down; offset.z += 1
-      when :north; offset.y -= 1
-      when :south; offset.y += 1
-      when :west; offset.x -= 1
-      when :east; offset.x += 1
+      when :up, :u; offset.z -= 1
+      when :down, :d; offset.z += 1
+      when :north, :n; offset.y -= 1
+      when :south, :s; offset.y += 1
+      when :west, :w; offset.x -= 1
+      when :east, :e; offset.x += 1
     end 
     offset
   end
@@ -59,7 +59,10 @@ module Interpretable
   def interpret data, can_eval = true
     data.strip.split(".").each do |raw_command|
       if can_eval && raw_command[0].chr == "`"
-        instance_eval raw_command[1..-2]
+        begin
+          instance_eval raw_command[1..-2]
+        rescue
+        end
       else
         command = raw_command.strip.split
         method, args = command.first, command[1..-1]

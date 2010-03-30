@@ -13,7 +13,7 @@ module Blindhorse
     end
 
     def receive_data(data)
-    	if auth! data
+      if auth! data
 		    interpret data
 
 		    send_data ">> "
@@ -28,6 +28,8 @@ module Blindhorse
 				@player = player(@name)
 
 				if @player.exists?
+				  @player.signout
+				  
 					send_data "What is your password?\n>> "
 				else
 					send_data "And what would you like your password to be?\n>> "
@@ -35,13 +37,23 @@ module Blindhorse
 
 				return false
 			elsif not @player.signed_in?
-				password = data.strip
-
+			  password = data.strip
+			  
 				if @player.exists?
-					@player.signin password
-
-					send_data "You're #{@player.signed_in? ? 'now' : 'not'} " +
-						"signedin.\n>> "
+					if @player.signin password
+            send_data "You're now signedin.\n"
+            
+            look
+            
+            send_data ">> "
+          else
+            @name, @player = nil, nil
+            
+            send_data "The system couldn't sign you in.\n" +
+              "What is your name?\n>> "
+          end
+        elsif password.blank?
+          send_data "Please enter a valid password.\n>> "
 				else
 					@player.create
 					@player.password = password

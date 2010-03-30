@@ -1,4 +1,4 @@
-require 'active_support'
+require 'activesupport'
 
 module Blindhorse
   module Modelable
@@ -43,7 +43,7 @@ module Blindhorse
       end
       
       def signed_in?
-        @store["players:#{@name}:signedin"]
+        not @store["players:#{@name}:signedin"].blank?
       end
     end
     
@@ -63,7 +63,7 @@ module Blindhorse
     def create; @store.set_add "players", @name; self end
     def destroy; @store.set_delete "players", @name; self end
     def exists?; @store.set_member? "players", @name end
-    def location; @store["player:#{@name}:location"].split(":").collect &:to_i end
+    def position; @store["player:#{@name}:location"].split(":").collect &:to_i end
   end
   
   class Room < Model
@@ -77,7 +77,16 @@ module Blindhorse
     def description; @store["rooms:#{@uuid}:description"] end
     def description= d; @store["rooms:#{@uuid}:description"] = d end
     def exists?; @store.set_member? "rooms", @uuid end
-    def location; @store["room:#{@uuid}:location"].split(":").collect &:to_i end
+    def position; @store["room:#{@uuid}:location"].split(":").collect &:to_i end
+    def exit? direction
+      sum = *position().sum(Direction.offset(direction))
+      key = sum.join(":")
+    	
+    	exists = @store.set_member? "locations", key
+    	number_of_rooms = @store.set_members("locations:#{key}:rooms").size
+    	
+    	exists && number_of_rooms > 0
+    end
   end
   
   class Location < Model
@@ -88,7 +97,7 @@ module Blindhorse
     def exists?; @store.set_member? "locations", key end
 
     def add_room uuid
-    	@store.set_add "location:#{key}:rooms", uuid
+    	@store.set_add "locations:#{key}:rooms", uuid
 			@store["room:#{uuid}:location"] = key
     end
 
@@ -101,7 +110,7 @@ module Blindhorse
 		def rooms; @store.set_members "locations:#{key}:rooms" end
 
     def add_player name
-    	@store.set_add "location:#{key}:players", name
+    	@store.set_add "locations:#{key}:players", name
     	@store["player:#{name}:location"] = key
     end
 

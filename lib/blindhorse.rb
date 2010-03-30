@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'eventmachine'
-require 'redis'
-require 'redis/namespace'
+require "#{File.dirname(__FILE__)}/../vendor/redis-rb/lib/redis"
 require 'json'
 require "#{File.dirname(__FILE__)}/utils"
 require "#{File.dirname(__FILE__)}/models"
