@@ -21,7 +21,7 @@ task :install do
   
   sh "brew install redis ruby dtach git"
   sh "gem update --system"
-  sh "gem install eventmachine sinatra activesupport redis json uuid --no-ri --no-rdoc"
+  sh "gem install eventmachine em-websocket sinatra activesupport redis json uuid --no-ri --no-rdoc"
   
   sh "cd vendor && git clone git://github.com/igrigorik/em-websocket.git"
 

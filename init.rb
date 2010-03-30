@@ -1,16 +1,15 @@
 require 'rubygems'
 require 'eventmachine'
-require "#{File.dirname(__FILE__)}/vendor/em-websocket/lib/em-websocket"
-require "#{File.dirname(__FILE__)}/vendor/spork/lib/spork"
+require "em-websocket"
 require "#{File.dirname(__FILE__)}/lib/blindhorse"
 
-def init c
-  c.store = Redis.new
+def init connection
+  connection.store = Redis.new
   
-  location = c.location(0, 0, 0).create
+  location = connection.location(0, 0, 0).create
   
   if location.rooms.empty?
-    room = c.room.create
+    room = connection.room.create
     room.name = "Town Center"
     room.description = "You are standing in the town center. " +
       "There is a large fountain here with a statue of the city's two " + 
@@ -18,6 +17,7 @@ def init c
     
     location.add_room room.uuid
   end
+  connection
 end
 
 EM.run do
@@ -33,9 +33,8 @@ EM.run do
     puts "Starting websocket server at localhost:6377."
   
     EventMachine::WebSocket.start(:host => "127.0.0.1", :port => 6377) do |ws|
-      c = Blindhorse::Server.new
-      init c
-    
+      c = init Blindhorse::Server.new
+      
       c.instance_eval { def send *args; self.send_data *args end }
   
       ws.onopen { c.post_init }
