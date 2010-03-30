@@ -35,7 +35,7 @@ EM.run do
     EventMachine::WebSocket.start(:host => "127.0.0.1", :port => 6377) do |ws|
       c = init Blindhorse::Server.new
       
-      c.instance_eval { def send *args; self.send_data *args end }
+      c.instance_eval { def send_data *args; ws.send *args end }
   
       ws.onopen { c.post_init }
       ws.onclose {}
