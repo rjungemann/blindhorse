@@ -47,7 +47,7 @@ namespace :redis do
     sh "cd vendor && git clone http://github.com/antirez/redis.git"
     sh "cd vendor/redis && make && cp redis-benchmark redis-cli redis-server redis-check-dump ../../bin/"
     
-    sh "cd vendor && git clone http://github.com/ezmobius/redis-rb.git"
+    sh "cd vendor && git clone http://github.com/antirez/redis-rb.git"
   end
   
 	desc ""
