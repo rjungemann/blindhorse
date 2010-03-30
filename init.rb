@@ -1,3 +1,4 @@
+require 'rubygems'
 require "#{File.dirname(__FILE__)}/lib/blindhorse"
 
 EM.run do
@@ -9,8 +10,8 @@ EM.run do
     if location.rooms.empty?
       room = c.room.create
       room.name = "Town Center"
-      room.description = "You are standing in the town center. " + "
-        There is a large fountain here with a statue of the city's two " + 
+      room.description = "You are standing in the town center. " +
+        "There is a large fountain here with a statue of the city's two " + 
         "founders standing on a pedestal in the middle of it."
       
       location.add_room room.uuid

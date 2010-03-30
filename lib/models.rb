@@ -1,5 +1,3 @@
-require 'activesupport'
-
 module Blindhorse
   module Modelable
     def self.model_for *table_syms

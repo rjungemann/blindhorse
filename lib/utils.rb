@@ -46,32 +46,3 @@ class Direction
     offset
   end
 end
-
-module Interpretable
-  def permit_interpretables m
-    unless (@command_modules ||= []).include? m
-      @command_modules << m
-      
-      class_eval { include m }
-    end
-  end
-  
-  def interpret data, can_eval = true
-    data.strip.split(".").each do |raw_command|
-      if can_eval && raw_command[0].chr == "`"
-        begin
-          instance_eval raw_command[1..-2]
-        rescue
-        end
-      else
-        command = raw_command.strip.split
-        method, args = command.first, command[1..-1]
-
-        self.send(method, *args) if @command_modules.find do |m|
-          m.public_method_defined? method
-        end
-      end
-    end
-    nil
-  end
-end
