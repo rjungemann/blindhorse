@@ -51,9 +51,73 @@ module Blindhorse
       def authorized? role; (@roles ||= []).include? role end
     end
     
+    module Presentable
+      def location_init connection
+        @location_connection = connection
+        
+        @location_sub ||= EventedRedis.connect
+				@location_pub ||= EventedRedis.connect
+      end
+      
+      def location_subscribe
+        key = position.join(':')
+        
+        @location_sub.subscribe("location:#{key}:entering") do |t, c, m|
+      	  if t == "message" && @name != m
+      	    @location_connection.send_data "#{m} has entered the room.\n>> "
+      	  end
+      	end
+      	
+      	@location_sub.subscribe("location:#{key}:leaving") do |t, c, m|
+      	  if t == "message" && @name != m
+      	    @location_connection.send_data "#{m} has left the room.\n>> "
+      	  end
+      	end
+      	
+      	@location_sub.subscribe("location:#{key}:chat") do |t, c, m|
+      	  if t == "message"
+      	    begin
+      	      contents = JSON.parse(m)
+      	      
+      	      if contents["to"] == @name || contents["to"].nil?
+      	        action = contents["to"] ? "says" : "yells"
+      	        str = "#{contents["from"]} #{action}, \"#{contents["message"]}\"."
+      	        
+      	        @location_connection.send_data "#{str}\n>> "
+      	      end
+    	      rescue
+    	      end
+      	  end
+      	end
+      end
+      
+      def location_unsubscribe; @location_sub.unsubscribe end
+      
+      def location_leave
+        @location_pub.publish("location:#{position.join(':')}:leaving", @name)
+      end
+      
+      def location_enter
+        @location_pub.publish("location:#{position.join(':')}:entering", @name)
+      end
+      
+      def location_yell message
+        json = { :from => @name, :message => message }.to_json
+        
+        @location_pub.publish("location:#{position.join(':')}:chat", json)
+      end
+      
+      def location_tell name, message
+        json = { :from => @name, :to => name, :message => message }.to_json
+        
+        @location_pub.publish("location:#{position.join(':')}:chat", json)
+      end
+    end
+    
     include Authenticable
     include Signinable
     include Authorizable
+    include Presentable
 
     attr_reader :name
     

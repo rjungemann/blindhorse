@@ -44,38 +44,26 @@ module Blindhorse
     def walk direction
       position = @player.position
 			sum = *position.sum(Direction.offset(direction))
+			
     	new_location = location(*sum).create
     	room = room(new_location.rooms.first)
 
 			if room.exists?
+			  @player.location_unsubscribe
+      	@player.location_leave
+      	
       	location(*position).remove_player @player.name
       	new_location.add_player @player.name
       	
-      	@sub ||= EventedRedis.connect
-      	@pub ||= EventedRedis.connect
-      	
-      	@pub.publish("location:#{position.join(':')}:leaving", @player.name)
-      	
-      	@sub.unsubscribe
-      	
-      	@pub.publish("location:#{sum.join(':')}:entering", @player.name)
-      	
-      	@sub.subscribe("location:#{sum.join(':')}:entering") do |t, c, m|
-      	  if @player.name != m && @store.set_member?("players", m)
-      	    send_data "#{m} has entered the room.\n>> "
-      	  end
-      	end
-      	
-      	@sub.subscribe("location:#{sum.join(':')}:leaving") do |t, c, m|
-      	  if @player.name != m && @store.set_member?("players", m)
-      	    send_data "#{m} has left the room.\n>> "
-      	  end
-      	end
+      	@player.location_enter
+      	@player.location_subscribe
 			end
       
       look
     end
-
+    
+    def yell message; @player.location_yell message end
+    def tell name, message; @player.location_tell name, message end
     def exit; close_connection_after_writing end
   end
   
@@ -83,30 +71,15 @@ module Blindhorse
     def go direction
 			position = @player.position
 			sum = *position.sum(Direction.offset(direction))
+			
+			@player.location_unsubscribe
+    	@player.location_leave
 
       location(*position).remove_player @player.name
       location(*sum).create.add_player @player.name
-      
-      @sub ||= EventedRedis.connect
-      @pub ||= EventedRedis.connect
-      
-      @pub.publish("location:#{position.join(':')}:leaving", @player.name)
-      
-    	@sub.unsubscribe
     	
-    	@pub.publish("location:#{sum.join(':')}:entering", @player.name)
-    	
-    	@sub.subscribe("location:#{sum.join(':')}:entering") do |t, c, m|
-    	  if @player.name != m && @store.set_member?("players", m)
-    	    send_data "#{m} has entered the room.\n>> "
-    	  end
-    	end
-    	
-    	@sub.subscribe("location:#{sum.join(':')}:leaving") do |t, c, m|
-    	  if @player.name != m && @store.set_member?("players", m)
-    	    send_data "#{m} has left the room.\n>> "
-    	  end
-    	end
+    	@player.location_enter
+    	@player.location_subscribe
       
       look
     end
