@@ -50,6 +50,27 @@ module Blindhorse
 			if room.exists?
       	location(*position).remove_player @player.name
       	new_location.add_player @player.name
+      	
+      	@sub ||= EventedRedis.connect
+      	@pub ||= EventedRedis.connect
+      	
+      	@pub.publish("location:#{position.join(':')}:leaving", @player.name)
+      	
+      	@sub.unsubscribe
+      	
+      	@pub.publish("location:#{sum.join(':')}:entering", @player.name)
+      	
+      	@sub.subscribe("location:#{sum.join(':')}:entering") do |t, c, m|
+      	  if @player.name != m && @store.set_member?("players", m)
+      	    send_data "#{m} has entered the room.\n>> "
+      	  end
+      	end
+      	
+      	@sub.subscribe("location:#{sum.join(':')}:leaving") do |t, c, m|
+      	  if @player.name != m && @store.set_member?("players", m)
+      	    send_data "#{m} has left the room.\n>> "
+      	  end
+      	end
 			end
       
       look
@@ -65,6 +86,27 @@ module Blindhorse
 
       location(*position).remove_player @player.name
       location(*sum).create.add_player @player.name
+      
+      @sub ||= EventedRedis.connect
+      @pub ||= EventedRedis.connect
+      
+      @pub.publish("location:#{position.join(':')}:leaving", @player.name)
+      
+    	@sub.unsubscribe
+    	
+    	@pub.publish("location:#{sum.join(':')}:entering", @player.name)
+    	
+    	@sub.subscribe("location:#{sum.join(':')}:entering") do |t, c, m|
+    	  if @player.name != m && @store.set_member?("players", m)
+    	    send_data "#{m} has entered the room.\n>> "
+    	  end
+    	end
+    	
+    	@sub.subscribe("location:#{sum.join(':')}:leaving") do |t, c, m|
+    	  if @player.name != m && @store.set_member?("players", m)
+    	    send_data "#{m} has left the room.\n>> "
+    	  end
+    	end
       
       look
     end

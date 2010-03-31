@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sample of web_socket.js</title>
+    
+    <script type="text/javascript" src="scripts/swfobject.js"></script>
+    <script type="text/javascript" src="scripts/FABridge.js"></script>
+    <script type="text/javascript" src="scripts/web_socket.js"></script>
+  
+    <script type="text/javascript">
+      WebSocket.__swfLocation = "scripts/web_socket.swf";
+  
+      var ws;
+      
+      function init() {
+        ws = new WebSocket("ws://localhost:8080/echo");
+  
+        ws.onopen = function() { output("onopen"); };
+        ws.onmessage = function(e) { output("onmessage: " + e.data); };
+        ws.onclose = function() { output("onclose"); };
+      }
+      function onSubmit() {
+        var input = document.getElementById("input");
+        
+        ws.send(input.value);
+        
+        output("send: " + input.value);
+        
+        input.value = "";
+        input.focus();
+      }
+      function onCloseClick() { ws.close(); }
+      function output(str) {
+        var log = document.getElementById("log");
+        var escaped = str.replace(/&/, "&amp;").replace(/</, "&lt;").
+          replace(/>/, "&gt;").replace(/"/, "&quot;"); // "
+        log.innerHTML = escaped + "<br>" + log.innerHTML;
+      }
+    </script>
+  </head>
+  
+  <body onload="init();">
+    <form onsubmit="onSubmit(); return false;">
+      <input type="text" id="input">
+      <input type="submit" value="Send">
+      <button onclick="onCloseClick(); return false;">close</button>
+    </form>
+    
+    <div id="log"></div>
+  </body>
+</html>

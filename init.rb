@@ -1,6 +1,4 @@
 require 'rubygems'
-require 'eventmachine'
-require "em-websocket"
 require "#{File.dirname(__FILE__)}/lib/blindhorse"
 
 def init connection
@@ -22,16 +20,13 @@ end
 
 EM.run do
   puts "Starting socket server at localhost:6378."
-  
   EM.start_server("127.0.0.1", "6378", Blindhorse::Server) { |c| init c }
   
   if(ARGV.find { |arg| ["--websocket", "-w"].include? arg })
     puts "Starting policy server at localhost:843."
-    
     EM.start_server("127.0.0.1", "843", Blindhorse::PolicySocket)
     
     puts "Starting websocket server at localhost:6377."
-  
     EventMachine::WebSocket.start(:host => "127.0.0.1", :port => 6377) do |ws|
       c = init Blindhorse::Server.new
       

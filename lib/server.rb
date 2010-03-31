@@ -66,7 +66,22 @@ module Blindhorse
 
 				return false
 			else
-				true
+				@sub ||= EventedRedis.connect
+				@pub ||= EventedRedis.connect
+      	
+      	@sub.unsubscribe
+      	
+      	@sub.subscribe("location:#{@player.position.join(':')}:entering") do |t, c, m|
+      	  if @player.name != m && @store.set_member?("players", m)
+      	    send_data "#{m} has entered the room.\n>> "
+      	  end
+      	end
+      	
+      	@sub.subscribe("location:#{@player.position.join(':')}:leaving") do |t, c, m|
+      	  if @player.name != m && @store.set_member?("players", m)
+      	    send_data "#{m} has left the room.\n>> "
+      	  end
+      	end
 			end
     end
   end
