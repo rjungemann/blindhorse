@@ -3,6 +3,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Sample of web_socket.js</title>
     
+    <style>
+      body {
+        font-family: "Bitstream Vera Sans Mono", monospace;
+      }
+    </style>
+    
     <script type="text/javascript" src="scripts/swfobject.js"></script>
     <script type="text/javascript" src="scripts/FABridge.js"></script>
     <script type="text/javascript" src="scripts/web_socket.js"></script>
@@ -13,11 +19,11 @@
       var ws;
       
       function init() {
-        ws = new WebSocket("ws://localhost:8080/echo");
+        ws = new WebSocket("ws://localhost:6377/");
   
-        ws.onopen = function() { output("onopen"); };
-        ws.onmessage = function(e) { output("onmessage: " + e.data); };
-        ws.onclose = function() { output("onclose"); };
+        ws.onopen = function() { output("# connection opened."); };
+        ws.onmessage = function(e) { output(e.data); };
+        ws.onclose = function() { output("# connection closed."); };
       }
       function onSubmit() {
         var input = document.getElementById("input");
@@ -42,7 +48,7 @@
   <body onload="init();">
     <form onsubmit="onSubmit(); return false;">
       <input type="text" id="input">
-      <input type="submit" value="Send">
+      <input type="button" onClick="onSubmit(); return false;" value="Send">
       <button onclick="onCloseClick(); return false;">close</button>
     </form>
     

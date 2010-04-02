@@ -7,6 +7,11 @@ class Object
   end
 end
 
+class Object
+  def metaclass; (class << self; self; end) end
+  def meta_eval *args, &block; metaclass.instance_eval *args, &block end
+end
+
 class Generate
   @@uuid = UUID.new
   

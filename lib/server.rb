@@ -1,5 +1,5 @@
 module Blindhorse  
-  class Server < EventMachine::Connection
+  module Socket
     include Modelable
     include Interpretable
     include RestrictedCommands
@@ -73,12 +73,21 @@ module Blindhorse
     end
   end
   
-  class PolicySocket < EventMachine::Connection
+  module PolicySocket
     def receive_data data
       if(data.match /<policy-file-request\s*\/>/)
         puts "PolicySocket: sending a cross-domain file."
         send_data %{<?xml version="1.0"?><cross-domain-policy><allow-access-from domain="*" to-ports="*"/></cross-domain-policy>\0}
       end
+    end
+  end
+  
+  class App < Sinatra::Base
+    set :public, "#{File.dirname(__FILE__)}/../public"
+    set :views, "#{File.dirname(__FILE__)}/../views"
+
+    get "/" do
+      "Hello, world!"
     end
   end
 end

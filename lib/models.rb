@@ -55,8 +55,8 @@ module Blindhorse
       def location_init connection
         @location_connection = connection
         
-        @location_sub ||= EventedRedis.connect
-				@location_pub ||= EventedRedis.connect
+        @location_sub ||= Redis::PubSub.connect
+				@location_pub ||= Redis::PubSub.connect
       end
       
       def location_subscribe
