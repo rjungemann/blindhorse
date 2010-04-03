@@ -1,14 +1,19 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Sample of web_socket.js</title>
+    <title>Blindhorse</title>
     
     <style>
-      body {
+      body, input, textarea {
         font-family: "Bitstream Vera Sans Mono", monospace;
+        color: #333333;
+        font-size: 16px;
       }
+      #form { margin-top: 10px; }
+      #input { width: 400px; }
     </style>
     
+    <script type="text/javascript" src="scripts/jquery.js"></script>
     <script type="text/javascript" src="scripts/swfobject.js"></script>
     <script type="text/javascript" src="scripts/FABridge.js"></script>
     <script type="text/javascript" src="scripts/web_socket.js"></script>
@@ -21,37 +26,72 @@
       function init() {
         ws = new WebSocket("ws://localhost:6377/");
   
-        ws.onopen = function() { output("# connection opened."); };
+        ws.onopen = function() { output("# connection opened.", "#ff9999"); };
         ws.onmessage = function(e) { output(e.data); };
-        ws.onclose = function() { output("# connection closed."); };
+        ws.onclose = function() { output("# connection closed.", "#ff9999"); };
       }
       function onSubmit() {
         var input = document.getElementById("input");
         
         ws.send(input.value);
         
-        output("send: " + input.value);
+        output("#=> " + input.value, "#999999");
         
         input.value = "";
         input.focus();
       }
       function onCloseClick() { ws.close(); }
-      function output(str) {
+      function output(str, color) {
         var log = document.getElementById("log");
-        var escaped = str.replace(/&/, "&amp;").replace(/</, "&lt;").
-          replace(/>/, "&gt;").replace(/"/, "&quot;"); // "
-        log.innerHTML = escaped + "<br>" + log.innerHTML;
+        var shouldEscape = true;
+        
+        if(str.match(/What is your password/)) {
+          $("#input").remove();
+          $("#submit").before('<input type="password" id="input"> ');
+        } else if($("#input").attr("type") == "password") {
+          $("#input").remove();
+          $("#submit").before('<input type="text" id="input"> ');
+          
+          var delineator = "#=> ";
+          var password = str.substring(delineator.length, str.length);
+          var hidden = "";
+          
+          for(var i = 0; i < password.length; i++) hidden += "*"
+          
+          str = delineator + hidden;
+          shouldEscape = false;
+          
+          var prev = log.innerHTML.length > 0 ? log.innerHTML + "<br>" : "";
+          
+          log.innerHTML = prev + str;
+        }
+        
+        if(str != ">> " && shouldEscape) {
+          var trimmed = str.replace(/>> /, "");
+          var escaped = trimmed.replace(/&/, "&amp;").replace(/</, "&lt;").
+            replace(/>/, "&gt;").replace(/"/, "&quot;");
+          var colorized = color ?
+            "<span style=\"color: " + color + ";\">" + escaped + "</span>" :
+            escaped;
+            
+          var prev = log.innerHTML.length > 0 ? log.innerHTML + "<br>" : "";
+          
+          log.innerHTML = prev + colorized;
+        }
       }
     </script>
   </head>
   
   <body onload="init();">
-    <form onsubmit="onSubmit(); return false;">
-      <input type="text" id="input">
-      <input type="button" onClick="onSubmit(); return false;" value="Send">
-      <button onclick="onCloseClick(); return false;">close</button>
-    </form>
+    <h1>Blindhorse</h1>
     
     <div id="log"></div>
+    
+    <form id="form" onsubmit="onSubmit(); return false;">
+      &gt;&gt;
+      <input type="text" id="input">
+      <input id="submit" type="submit" value="send">
+      <input type="button" onclick="onCloseClick(); return false;" value="close">
+    </form>
   </body>
 </html>

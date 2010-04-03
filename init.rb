@@ -1,7 +1,6 @@
 require 'rubygems'
 require "#{File.dirname(__FILE__)}/lib/blindhorse"
 
-
 def init connection
   connection.store = Redis.new
   
@@ -20,8 +19,10 @@ def init connection
 end
 
 thread = Thread.new do
-  EM.run do
-    Rack::Handler::WEBrick.run Blindhorse::App, :Port => 6376
+  Rack::Handler::WEBrick.run Blindhorse::App, :Port => 6376
+  
+  trap("INT") do
+    Thread.current.exit
   end
 end
 
