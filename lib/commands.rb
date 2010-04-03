@@ -62,6 +62,29 @@ module Blindhorse
       look
     end
     
+    def run dirs
+      @player.location_unsubscribe
+    	@player.location_leave
+      
+      Direction.run_directions(dirs).each do |dir|
+        position = @player.position
+  			sum = *position.sum(Direction.offset(dir))
+
+      	new_location = location(*sum).create
+      	room = room(new_location.rooms.first)
+
+  			if room.exists?
+        	location(*position).remove_player @player.name
+        	new_location.add_player @player.name
+  			end
+      end
+      
+      @player.location_enter
+    	@player.location_subscribe
+    	
+    	look
+    end
+    
     def yell message; @player.location_yell message end
     def tell name, message; @player.location_tell name, message end
     def exit; close_connection_after_writing end

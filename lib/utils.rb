@@ -50,4 +50,25 @@ class Direction
     end 
     offset
   end
+  
+  # Direction.run_directions "2s3enn2u1w" # short example
+  def self.run_directions str
+    @@dirs_hash ||= { "n" => :north, "s" => :south, "e" => :east,
+      "w" => :west, "u" => :up, "d" => :down }
+    buffer, i = [], 0
+    while i < str.size
+      char = str[i].chr
+      int = char.to_i
+
+      if int != 0
+        next_char = str[i + 1].chr
+        int.times { |j| buffer << @@dirs_hash[next_char] } 
+        i += 1
+      else
+        buffer << @@dirs_hash[char]
+      end
+      i += 1
+    end
+    buffer.compact
+  end
 end
